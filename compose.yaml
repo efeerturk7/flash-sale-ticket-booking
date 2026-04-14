@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: 'postgres:16'
+    environment:
+      - 'POSTGRES_DB=postgres'
+      - 'POSTGRES_PASSWORD=1'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data_clean:/var/lib/postgresql/data1
+  app:
+    build: .
+    image: 'flash-sale-ticket-booking'
+    container_name: booking-app
+    ports:
+     - '8082:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    depends_on:
+          - postgres
+          - redis
+    restart: on-failure
+  redis:
+      image: 'redis:alpine'
+      container_name: booking-redis
+      ports:
+        - "6379:6379"
+      volumes:
+        - redis_data:/data
+      restart: always
+
+volumes:
+    postgres_data_clean:
+    redis_data:
